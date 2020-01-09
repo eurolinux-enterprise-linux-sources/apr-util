@@ -4,13 +4,15 @@
 Summary: Apache Portable Runtime Utility library
 Name: apr-util
 Version: 1.3.9
-Release: 3%{?dist}
+Release: 3%{?dist}.1
 License: ASL 2.0
 Group: System Environment/Libraries
 URL: http://apr.apache.org/
 Source0: http://www.apache.org/dist/apr/%{name}-%{version}.tar.bz2
 Patch1: apr-util-1.2.7-pkgconf.patch
 Patch2: apr-util-1.3.7-nodbmdso.patch
+# Security fixes
+Patch20: apr-util-1.3.9-CVE-2010-1623.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires: autoconf, apr-devel >= 1.3.0
 BuildRequires: db4-devel, expat-devel, libuuid-devel
@@ -87,6 +89,8 @@ This package provides the LDAP support for the apr-util.
 %patch1 -p1 -b .pkgconf
 %patch2 -p1 -b .nodbmdso
 
+%patch20 -p1 -b .cve1623
+
 %build
 autoheader && autoconf
 %configure --with-apr=%{_prefix} \
@@ -94,7 +98,7 @@ autoheader && autoconf
         --with-ldap --without-gdbm \
         --with-sqlite3 --with-pgsql --with-mysql --with-odbc \
         --with-berkeley-db \
-        --without-sqlite2
+        --without-sqlite2 --without-freetds
 make %{?_smp_mflags}
 
 %install
@@ -174,6 +178,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/aclocal/*.m4
 
 %changelog
+* Thu Dec  2 2010 Joe Orton <jorton@redhat.com> - 1.3.9-3.1
+- add security fix for CVE-2010-1623 (#659253)
+
 * Fri Dec 18 2009 Joe Orton <jorton@redhat.com> - 1.3.9-3
 - drop freetds support
 
